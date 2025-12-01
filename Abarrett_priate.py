@@ -79,7 +79,46 @@ class Sapphire(simpleGE.Sprite):
     def checkBounds(self):
         bottom = self.y + self.rect.height / 2
         if bottom > self.screen.get_height():
-            self.reset()  
+            self.reset()
+            
+class Bomb(simpleGE.Sprite):
+    def __init__(self, scene):
+        super().__init__(scene)
+        self.setImage("Bomb.png")     
+        self.setSize(25, 25)
+        self.minSpeed = 3
+        self.maxSpeed = 10
+        self.reset()
+
+    def reset(self):
+        self.y = -self.rect.height // 2
+        self.x = random.randint(0, self.screen.get_width())
+        self.dy = random.randint(self.minSpeed, self.maxSpeed)
+
+    def checkBounds(self):
+        bottom = self.y + self.rect.height / 2
+        if bottom > self.screen.get_height():
+            self.reset()
+
+
+class Skull(simpleGE.Sprite):
+    def __init__(self, scene):
+        super().__init__(scene)
+        self.setImage("Skull.png")  
+        self.setSize(25, 25)
+        self.minSpeed = 3
+        self.maxSpeed = 10
+        self.reset()
+
+    def reset(self):
+        self.y = -self.rect.height // 2
+        self.x = random.randint(0, self.screen.get_width())
+        self.dy = random.randint(self.minSpeed, self.maxSpeed)
+
+    def checkBounds(self):
+        bottom = self.y + self.rect.height / 2
+        if bottom > self.screen.get_height():
+            self.reset()
 
 
 class Pirate(simpleGE.Sprite):
@@ -125,10 +164,14 @@ class Game(simpleGE.Scene):
         super().__init__()
         self.setImage("ship.png")
         self.sndCoin = simpleGE.Sound("coin.wav")
+        self.sndBad = simpleGE.Sound("bad.wav")
+        self.sndGold = simpleGE.Sound("gold.flac") 
         self.numCoins = 10
         self.numAmetrine = 2
         self.numAquamarine = 2
         self.numSapphire = 2
+        self.numBombs = 3
+        self.numSkulls = 3
         
         self.score = 0
         self.lblScore = LblScore()
@@ -155,6 +198,13 @@ class Game(simpleGE.Scene):
         self.sapphires = []
         for i in range(self.numSapphire):
             self.sapphires.append(Sapphire(self))
+            self.bombs = []
+        for i in range(self.numBombs):
+            self.bombs.append(Bomb(self))
+
+        self.skulls = []
+        for i in range(self.numSkulls):
+            self.skulls.append(Skull(self))
 
 
         self.sprites = [self.pirate,
@@ -162,6 +212,8 @@ class Game(simpleGE.Scene):
                         self.ametrines,
                         self.aquamarines,
                         self.sapphires,
+                        self.bombs,
+                        self.skulls,
                         self.lblScore,
                         self.lblTime]
 
@@ -178,20 +230,35 @@ class Game(simpleGE.Scene):
         for gem in self.ametrines:
             if gem.collidesWith(self.pirate):
                 gem.reset()
-                self.sndCoin.play()
+                self.sndGold.play() 
                 self.score += 20   
 
         for gem in self.aquamarines:
             if gem.collidesWith(self.pirate):
                 gem.reset()
-                self.sndCoin.play()
+                self.sndGold.play()
                 self.score += 25   
 
         for gem in self.sapphires:
             if gem.collidesWith(self.pirate):
                 gem.reset()
-                self.sndCoin.play()
-                self.score += 30              
+                self.sndGold.play()
+                self.score += 30
+                
+        for bomb in self.bombs:
+            if bomb.collidesWith(self.pirate):
+                bomb.reset()
+                self.sndBad.play()
+                self.score -= 15
+
+        for skull in self.skulls:
+            if skull.collidesWith(self.pirate):
+                skull.reset()
+                self.sndBad.play()
+                self.score -= 10
+                
+            if self.score < 0:
+                self.score = 0
                 
                 
                 self.lblScore.text = f"Score: {self.score}"
