@@ -167,13 +167,15 @@ class LblScore(simpleGE.Label):
     def __init__(self):
         super().__init__()
         self.text = "Score: 0"
-        self.center = (100, 30)
+        self.center = (125, 30)
+        self.size = (150, 30) 
         
 class LblTime(simpleGE.Label):
     def __init__(self):
         super().__init__()
-        self.text = "Time left: 15"
-        self.center = (500, 30)        
+        self.text = "Time left: 30"
+        self.center = (500, 30)
+        self.size = (180, 30) 
         
 
 
@@ -199,7 +201,7 @@ class Game(simpleGE.Scene):
         self.lblScore = LblScore()
         
         self.timer = simpleGE.Timer()
-        self.timer.totalTime = 15    
+        self.timer.totalTime = 20  
         self.timer.start()
         self.lblTime = LblTime()
 
@@ -338,16 +340,16 @@ class Game(simpleGE.Scene):
                 self.sndBad.play()
                 self.score -= 15
                 
-            if self.score < 0:
-               self.score = 0
-                
-                
-            self.lblScore.text = f"Score: {self.score}"      
-            self.lblTime.text = f"Time Left: {self.timer.getTimeLeft():.2f}"
-            
-            if self.timer.getTimeLeft() < 0:
-                print(f"Score: {self.score}")
-                self.stop()
+        if self.score < 0:
+            self.score = 0
+
+        self.lblScore.text = f"Score: {self.score}"
+        self.lblTime.text = f"Time Left: {self.timer.getTimeLeft():.2f}"
+
+        
+        if self.timer.getTimeLeft() < 0:
+            print(f"Score: {self.score}")
+            self.stop()
 
 class Instructions(simpleGE.Scene):
     def __init__(self, prevScore):
@@ -385,6 +387,7 @@ class Instructions(simpleGE.Scene):
         self.lblScore = simpleGE.Label()
         self.lblScore.text = "Last score: 0"
         self.lblScore.center = (300, 25)
+        self.size = (180, 30)
         
         self.lblScore.text = f"Last score: {self.prevScore}"
 
