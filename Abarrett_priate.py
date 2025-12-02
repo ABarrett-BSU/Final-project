@@ -28,7 +28,7 @@ class Ametrine(simpleGE.Sprite):
         self.setImage("Ametrine.png")  
         self.setSize(25, 25)
         self.minSpeed = 3
-        self.maxSpeed = 10
+        self.maxSpeed = 5
         self.reset()
 
     def reset(self):
@@ -163,9 +163,11 @@ class Game(simpleGE.Scene):
     def __init__(self):
         super().__init__()
         self.setImage("ship.png")
+        
         self.sndCoin = simpleGE.Sound("coin.wav")
         self.sndBad = simpleGE.Sound("bad.wav")
         self.sndGold = simpleGE.Sound("gold.flac") 
+        
         self.numCoins = 10
         self.numAmetrine = 2
         self.numAquamarine = 2
@@ -205,46 +207,80 @@ class Game(simpleGE.Scene):
         self.skulls = []
         for i in range(self.numSkulls):
             self.skulls.append(Skull(self))
+            
+        self.burstBombs = []
+        self.burstSkulls = []
+        
+        self.burstTimer = simpleGE.Timer()
+        self.burstTimer.totalTime = random.randint(3, 7)   
+        self.burstTimer.start()
+        
 
-
-        self.sprites = [self.pirate,
-                        self.coins,
-                        self.ametrines,
-                        self.aquamarines,
-                        self.sapphires,
-                        self.bombs,
-                        self.skulls,
-                        self.lblScore,
-                        self.lblTime]
+        self.sprites = [
+            self.pirate,
+            self.coins,
+            self.ametrines,
+            self.aquamarines,
+            self.sapphires,
+            self.bombs,
+            self.skulls,
+            self.burstBombs,
+            self.burstSkulls,
+            self.lblScore,
+            self.lblTime,
+            ]
 
                                                         
 
+
     def process(self):
+
+       
+        if self.burstTimer.getTimeLeft() <= 0:
+            burstCount = random.randint(2, 5)
+            hazardType = random.choice(["bombs", "skulls", "both"])
+
+            self.burstBombs.clear()
+            self.burstSkulls.clear()
+
+            if hazardType in ["bombs", "both"]:
+                for _ in range(burstCount):
+                    self.burstBombs.append(Bomb(self))
+
+            if hazardType in ["skulls", "both"]:
+                for _ in range(burstCount):
+                    self.burstSkulls.append(Skull(self))
+
+            self.burstTimer.totalTime = random.randint(3, 7)
+            self.burstTimer.start()
+            
+        
         for coin in self.coins:
-            hit = coin.collidesWith(self.pirate)
-            if hit:
+            if coin.collidesWith(self.pirate):
                 coin.reset()
                 self.sndCoin.play()
                 self.score += 10
-                
+
+        
         for gem in self.ametrines:
             if gem.collidesWith(self.pirate):
                 gem.reset()
-                self.sndGold.play() 
-                self.score += 20   
+                self.sndGold.play()
+                self.score += 20
 
         for gem in self.aquamarines:
             if gem.collidesWith(self.pirate):
                 gem.reset()
                 self.sndGold.play()
-                self.score += 25   
+                self.score += 25
 
         for gem in self.sapphires:
             if gem.collidesWith(self.pirate):
                 gem.reset()
                 self.sndGold.play()
                 self.score += 30
-                
+
+        
         for bomb in self.bombs:
             if bomb.collidesWith(self.pirate):
                 bomb.reset()
@@ -256,6 +292,19 @@ class Game(simpleGE.Scene):
                 skull.reset()
                 self.sndBad.play()
                 self.score -= 10
+
+        
+        for bomb in self.burstBombs:
+            if bomb.collidesWith(self.pirate):
+                bomb.reset()
+                self.sndBad.play()
+                self.score -= 20
+
+        for skull in self.burstSkulls:
+            if skull.collidesWith(self.pirate):
+                skull.reset()
+                self.sndBad.play()
+                self.score -= 15
                 
             if self.score < 0:
                 self.score = 0
@@ -279,14 +328,19 @@ class Instructions(simpleGE.Scene):
 
         self.directions = simpleGE.MultiLabel()
         self.directions.textLines = [
-           "Ahoy, matey! You’re a pirate on a quest for treasure!",
-           "Use the arrow keys to sail left or right or up and down.",
-           "Snatch as many gold coins as ye can before time runs out!",
-           "before time runs out!",
-           "Hoist the sails and good luck!"]
+            "Ahoy, matey! You’re a pirate on a quest for treasure!",
+            "Use the LEFT and RIGHT arrow keys to move your pirate.",
+            "Catch coins and rare gems (Ametrine, Aquamarine, Sapphire)",
+            "to earn big points and hear the sound of gold!",
+            "Beware bombs and skulls – especially random hazard bursts!",
+            "                                                          ",            
+            ]
         
         self.directions.center = (320, 350)
-        self.directions.size = (550, 250)
+        self.directions.size = (650, 350)
+        self.directions.fontSize = 5
+        self.directions.lineSpacing = 1
+        
         
         self.btnPlay = simpleGE.Button()
         self.btnPlay.text = "Play"
