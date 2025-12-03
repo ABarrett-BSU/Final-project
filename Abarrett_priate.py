@@ -185,7 +185,7 @@ class Game(simpleGE.Scene):
         self.setImage("ship.png")
         
         self.sndCoin = simpleGE.Sound("coin.wav")
-        self.sndBad = simpleGE.Sound("bad.wav")
+        self.sndFlash = simpleGE.Sound("flash.flac")
 
         
         self.numCoins = 10
@@ -318,26 +318,26 @@ class Game(simpleGE.Scene):
         for bomb in self.bombs:
             if bomb.collidesWith(self.pirate):
                 bomb.reset()
-                self.sndBad.play()
+                self.sndFlash.play()
                 self.score -= 15
 
         for skull in self.skulls:
             if skull.collidesWith(self.pirate):
                 skull.reset()
-                self.sndBad.play()
+                self.sndFlash.play()
                 self.score -= 10
 
         
         for bomb in self.burstBombs:
             if bomb.collidesWith(self.pirate):
                 bomb.reset()
-                self.sndBad.play()
+                self.sndFlash.play()
                 self.score -= 20
 
         for skull in self.burstSkulls:
             if skull.collidesWith(self.pirate):
                 skull.reset()
-                self.sndBad.play()
+                self.sndFlash.play()
                 self.score -= 15
                 
         if self.score < 0:
